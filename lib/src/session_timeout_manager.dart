@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'session_config.dart';
 
 enum SessionState { startListening, stopListening }
@@ -19,12 +20,8 @@ class SessionTimeoutManager extends StatefulWidget {
   /// Since updating [Timer] fir all user interactions could be expensive, user activity are recorded
   /// only after [userActivityDebounceDuration] interval, by default its 1 minute
   final Duration userActivityDebounceDuration;
-  const SessionTimeoutManager(
-      {required sessionConfig,
-      required this.child,
-      sessionStateStream,
-      this.userActivityDebounceDuration = const Duration(seconds: 1),
-      super.key})
+
+  const SessionTimeoutManager({required sessionConfig, required this.child, sessionStateStream, this.userActivityDebounceDuration = const Duration(seconds: 1), super.key})
       : _sessionConfig = sessionConfig,
         _sessionStateStream = sessionStateStream;
 
@@ -32,8 +29,7 @@ class SessionTimeoutManager extends StatefulWidget {
   _SessionTimeoutManagerState createState() => _SessionTimeoutManagerState();
 }
 
-class _SessionTimeoutManagerState extends State<SessionTimeoutManager>
-    with WidgetsBindingObserver {
+class _SessionTimeoutManagerState extends State<SessionTimeoutManager> with WidgetsBindingObserver {
   Timer? _appLostFocusTimer;
   Timer? _userInactivityTimer;
   bool _isListensing = false;
@@ -82,13 +78,13 @@ class _SessionTimeoutManagerState extends State<SessionTimeoutManager>
     super.didChangeAppLifecycleState(state);
 
     if (_isListensing == true &&
-        (state == AppLifecycleState.inactive ||
+        ( // state == AppLifecycleState.inactive ||
             state == AppLifecycleState.paused)) {
       if (widget._sessionConfig.invalidateSessionForAppLostFocus != null) {
-        _appLostFocusTimer ??= _setTimeout(
-          () => widget._sessionConfig.pushAppFocusTimeout(),
-          duration: widget._sessionConfig.invalidateSessionForAppLostFocus!,
-        );
+        // _appLostFocusTimer ??= _setTimeout(
+        //   () => widget._sessionConfig.pushAppFocusTimeout(),
+        //   duration: widget._sessionConfig.invalidateSessionForAppLostFocus!,
+        // );
 
         _appLostFocusTimestamp = DateTime.now();
       }
@@ -125,8 +121,7 @@ class _SessionTimeoutManagerState extends State<SessionTimeoutManager>
       return;
     }
 
-    if (_userTapActivityRecordEnabled &&
-        widget._sessionConfig.invalidateSessionForUserInactivity != null) {
+    if (_userTapActivityRecordEnabled && widget._sessionConfig.invalidateSessionForUserInactivity != null) {
       _userInactivityTimer?.cancel();
       _userInactivityTimer = _setTimeout(
         () => widget._sessionConfig.pushUserInactivityTimeout(),
